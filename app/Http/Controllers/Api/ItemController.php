@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Item;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
@@ -17,7 +17,7 @@ class ItemController extends Controller
      */
     public function index()
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         $cacheKey = 'employees_items_list';
 
@@ -55,7 +55,7 @@ class ItemController extends Controller
      */
     public function store(Request $request)
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if ($user->role !== 'admin') {
             return response()->json(['message' => 'Access denied'], 403);
@@ -130,7 +130,7 @@ class ItemController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if ($user->role !== 'admin') {
             return response()->json(['message' => 'Access denied'], 403);
@@ -189,7 +189,7 @@ class ItemController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if ($user->role !== 'admin') {
             return response()->json(['message' => 'Access denied'], 403);

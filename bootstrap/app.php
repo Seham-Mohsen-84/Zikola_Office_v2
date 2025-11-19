@@ -15,10 +15,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->prependToGroup('api', [
+            JwtFromCookie::class,
+        ]);
         $middleware->alias([
+            'jwt.cookie' => JwtFromCookie::class,
             'role' => RoleMiddleware::class,
             'verify.aihoc' => VerifyAiHocToken::class,
-            'jwt.cookie' => JwtFromCookie::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

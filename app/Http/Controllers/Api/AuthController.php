@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Hash;
 class AuthController extends Controller
 {
@@ -18,7 +18,7 @@ class AuthController extends Controller
 
         $credentials = $request->only('username', 'password');
 
-        if (!$token =auth('api')->attempt($credentials)) {
+        if (!$token =JWTAuth::attempt($credentials)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Invalid login details',
@@ -34,8 +34,9 @@ class AuthController extends Controller
             true,
             true,
             false,
-            'Strict'
+            'None'
         );
+
         return response()->json([
             'status' => 'success',
             'message' => 'Login successful',
@@ -46,7 +47,7 @@ class AuthController extends Controller
 
     public function me()
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         return response()->json([
             'user' => $user,
@@ -81,7 +82,7 @@ class AuthController extends Controller
 
     public function logout()
     {
-        auth('api')->logout();
+        JWTAuth::logout();
 
         $cookie = cookie()->forget(config('jwt.cookie_key_name'));
 
@@ -93,7 +94,7 @@ class AuthController extends Controller
 
     public function refresh()
     {
-        $newToken = auth('api')->refresh();
+        $newToken = JWTAuth::refresh();
 
         $cookie = cookie(
             config('jwt.cookie_key_name'),

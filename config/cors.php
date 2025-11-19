@@ -5,13 +5,19 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://zorders.zikolaa.com','http://localhost:4200'],
+    'allowed_origins' => [
+        'https://zorders.zikolaa.com',
+        'http://localhost:4200',
+        'http://127.0.0.1:4200',
+        'http://localhost',
+        'http://127.0.0.1',
+    ],
 
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['Content-Type', 'X-Requested-With', 'Authorization', 'X-CSRF-TOKEN', 'X-App-Language','4200'],
+    'allowed_headers' => ['*'],
 
-    'exposed_headers' => ['X-App-Language'],
+    'exposed_headers' => ['*'],
 
     'max_age' => 0,
 

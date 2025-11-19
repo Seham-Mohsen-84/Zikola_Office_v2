@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -18,7 +18,7 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if (!in_array($user->role, ['admin', 'barista'])) {
             return response()->json(['message' => 'Access denied'], 403);
@@ -46,7 +46,7 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if (!in_array($user->role, ['admin', 'employee'])) {
             return response()->json(['message' => 'Access denied'], 403);
@@ -138,7 +138,7 @@ class OrderController extends Controller
             return response()->json(['message' => 'Order not found'], 404);
         }
 
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if ($user->role === 'barista' || $user->role === 'admin'|| $order->user_id === $user->id) {
             return response()->json([
@@ -155,7 +155,7 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if (!in_array($user->role, ['admin', 'employee'])) {
             return response()->json(['message' => 'Access denied'], 403);
@@ -213,7 +213,7 @@ class OrderController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if (!in_array($user->role, ['admin', 'employee'])) {
             return response()->json(['message' => 'Access denied'], 403);
@@ -271,7 +271,7 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, $id)
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if (!in_array($user->role, ['admin', 'barista'])) {
             return response()->json(['message' => 'Access denied'], 403);
@@ -318,7 +318,7 @@ class OrderController extends Controller
      */
     public function myOrders()
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         $orders = Order::with('item')
             ->where('user_id', $user->id)
@@ -333,7 +333,7 @@ class OrderController extends Controller
 
     public function updateOrdersLimit(Request $request ,$id)
     {
-        $admin = auth('api')->user();
+        $admin = JWTAuth::user();
 
         if ($admin->role !== 'admin') {
             return response()->json([
@@ -363,7 +363,7 @@ class OrderController extends Controller
         ], 200);
     }
     public function updateLimit(Request $request){
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if ($user->role !== 'admin') {
             return response()->json([
@@ -396,7 +396,7 @@ class OrderController extends Controller
 
     public function ordersLimit()
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if ($user->role !== 'admin') {
             return response()->json([
@@ -411,7 +411,7 @@ class OrderController extends Controller
     }
     public function  deleteOrders()
     {
-        $user = auth('api')->user();
+        $user = JWTAuth::user();
 
         if ($user->role !== 'admin') {
             return response()->json([

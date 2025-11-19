@@ -17,12 +17,12 @@ Route::get('/user', function (Request $request) {
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:api','jwt.cookie');
-    Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('auth:api','jwt.cookie');
-    Route::get('/me', [AuthController::class, 'me'])->middleware('auth:api','jwt.cookie');
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('jwt.cookie');
+    Route::post('/refresh', [AuthController::class, 'refresh'])->middleware('jwt.cookie');
+    Route::get('/me', [AuthController::class, 'me'])->middleware('jwt.cookie');
 });
 
-Route::prefix('users')->middleware(['auth:api','jwt.cookie', 'role:admin'])->group(function () {
+Route::prefix('users')->middleware(['jwt.cookie', 'role:admin'])->group(function () {
     Route::get('/', [UserController::class, 'index']);
     Route::get('/trashed', [UserController::class, 'trashed']);
     Route::post('/restore/{id}', [UserController::class, 'restore']);
@@ -32,7 +32,7 @@ Route::prefix('users')->middleware(['auth:api','jwt.cookie', 'role:admin'])->gro
     Route::delete('/{id}', [UserController::class, 'destroy']);
 });
 
-Route::prefix('orders')->middleware(['auth:api','jwt.cookie'])->group(function () {
+Route::prefix('orders')->middleware(['jwt.cookie'])->group(function () {
     Route::get('/', [OrderController::class, 'index'])->middleware('role:admin,barista');
     Route::post('/', [OrderController::class, 'store'])->middleware('role:admin,employee');
     Route::get('/my-orders', [OrderController::class, 'myOrders']);
@@ -46,7 +46,7 @@ Route::prefix('orders')->middleware(['auth:api','jwt.cookie'])->group(function (
     Route::put('/limit', [OrderController::class, 'updateLimit'])->middleware('role:admin');
 });
 
-Route::prefix('items')->middleware(['auth:api','jwt.cookie'])->group(function () {
+Route::prefix('items')->middleware(['jwt.cookie'])->group(function () {
     Route::get('/', [ItemController::class, 'index']);
     Route::get('/{id}', [ItemController::class, 'show']);
     Route::post('/', [ItemController::class, 'store'])->middleware('role:admin');
@@ -54,7 +54,7 @@ Route::prefix('items')->middleware(['auth:api','jwt.cookie'])->group(function ()
     Route::delete('/{id}', [ItemController::class, 'destroy'])->middleware('role:admin');
 });
 
-Route::prefix('branches')->middleware(['auth:api', 'role:admin','jwt.cookie'])->group(function () {
+Route::prefix('branches')->middleware(['role:admin','jwt.cookie'])->group(function () {
     Route::get('/', [BranchController::class, 'index']);
     Route::post('/', [BranchController::class, 'store']);
     Route::get('/count', [RoomController::class, 'count']);
@@ -63,7 +63,7 @@ Route::prefix('branches')->middleware(['auth:api', 'role:admin','jwt.cookie'])->
     Route::delete('/{id}', [BranchController::class, 'destroy']);
 });
 
-Route::prefix('rooms')->middleware(['auth:api', 'role:admin','jwt.cookie'])->group(function () {
+Route::prefix('rooms')->middleware(['role:admin','jwt.cookie'])->group(function () {
     Route::get('/', [RoomController::class, 'index']);
     Route::post('/', [RoomController::class, 'store']);
     Route::get('/count', [RoomController::class, 'count']);
