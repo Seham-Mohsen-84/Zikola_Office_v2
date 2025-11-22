@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -12,7 +13,7 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable ,SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -75,7 +76,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function getAuthIdentifierName()
     {
-        return 'username';
+        return 'id';
     }
 
     public function getJWTCustomClaims()
@@ -85,4 +86,10 @@ class User extends Authenticatable implements JWTSubject
             'role'     => $this->role,
         ];
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
 }

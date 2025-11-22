@@ -13,44 +13,48 @@ class JwtFromCookie
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response) $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        Log::info("JwtFromCookie MIDDLEWARE IS RUNNING");
+        Log::info("---- JwtFromCookie MIDDLEWARE START ----");
 
-        if ($token = $request->cookie(config('jwt.cookie_key_name'))) {
+        Log::info("ALL COOKIES: " . json_encode($request->cookies->all()));
+        Log::info("BEARER TOKEN: " . $request->bearerToken());
+        Log::info("AUTH HEADER RAW: " . $request->header('Authorization'));
 
-            Log::info("TOKEN FROM COOKIE = " . $token);
+        $token = $request->bearerToken()
+            ?? $request->cookie(config('jwt.cookie_key_name'));
+
+        if ($token) {
+
+            Log::info("TOKEN FOUND = " . $token);
+
+            $request->headers->set('Authorization', 'Bearer ' . $token);
 
             try {
+                auth()->shouldUse('api');
+
                 $user = JWTAuth::setToken($token)->authenticate();
+
+                Log::info("AUTH RESULT = " . json_encode($user));
 
                 if ($user) {
 
-                    // لازم Laravel يعرف مين اليوزر
                     auth()->setUser($user);
 
-                    // لازم Laravel يستخدم الجارد api
-                    auth()->shouldUse('api');
+                    $request->setUserResolver(fn() => $user);
 
-                    $request->setUserResolver(function () use ($user) {
-                        return $user;
-                    });
-
-                    // ⚠️ هنا بالظبط نحط اللوجز الـ 3
-                    Log::info("AUTH USER AFTER SET = " . json_encode(auth()->user()));
-                    Log::info("REQUEST->user() AFTER SET = " . json_encode($request->user()));
-                    Log::info("JWTAuth::user() AFTER SET = " . json_encode(JWTAuth::user()));
+                    Log::info("USER SET SUCCESSFULLY");
+                } else {
+                    Log::warning("AUTHENTICATE RETURNED NULL USER");
                 }
 
-            } catch (\Exception $e) {
-                Log::info("JWT ERROR: " . $e->getMessage());
+            }catch (\Exception $e) {
+                Log::warning("NO TOKEN FOUND IN COOKIE OR HEADER");
             }
 
-        } else {
-            Log::info("NO COOKIE FOUND !!!");
-        }
+        } Log::info("---- JwtFromCookie MIDDLEWARE END ----");
 
         return $next($request);
     }

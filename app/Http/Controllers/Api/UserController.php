@@ -21,6 +21,7 @@ class UserController extends Controller
 
         $users = User::withCount('orders')
             ->with('orders.item')
+            ->with('room.branch')
             ->paginate(20);
 
         return response()->json([

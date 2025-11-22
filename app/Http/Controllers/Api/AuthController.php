@@ -25,17 +25,25 @@ class AuthController extends Controller
             ], 401);
         }
 
+        $user = User::where('username', $request->username)->firstOrFail();
+
+        if ($request->has('fcm_token')) {
+            $user->fcm_token = $request->fcm_token;
+            $user->save();
+        }
+
         $cookie = cookie(
             config('jwt.cookie_key_name'),
             $token,
             config('jwt.ttl'),
             '/',
-            null,
+            $request->getHost(),
             true,
             true,
             false,
-            'None'
+            'Lax'
         );
+
 
         return response()->json([
             'status' => 'success',
@@ -50,9 +58,10 @@ class AuthController extends Controller
         $user = JWTAuth::user();
 
         return response()->json([
-            'user' => $user,
+            'user' => $user
         ]);
     }
+
     public function register(Request $request)
     {
         $request->validate([
@@ -80,10 +89,16 @@ class AuthController extends Controller
         ], 201);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        JWTAuth::logout();
+        try {
+            // Invalidate token (optional)
+            JWTAuth::invalidate(JWTAuth::getToken());
+        } catch (\Exception $e) {
+            // ignore errors - token may already be invalid
+        }
 
+        // Remove cookie
         $cookie = cookie()->forget(config('jwt.cookie_key_name'));
 
         return response()->json([
@@ -92,7 +107,8 @@ class AuthController extends Controller
         ])->withCookie($cookie);
     }
 
-    public function refresh()
+
+    public function refresh(Request $request)
     {
         $newToken = JWTAuth::refresh();
 
@@ -101,11 +117,11 @@ class AuthController extends Controller
             $newToken,
             config('jwt.ttl'),
             '/',
-            null,
-            true,
+            $request->getHost(),
+            false,
             true,
             false,
-            'Strict'
+            'None'
         );
 
         return response()->json([
